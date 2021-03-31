@@ -3,13 +3,16 @@ from datetime import datetime
 from glob import glob
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import Intents, Embed, File
-from discord.ext.commands import Bot as BotBase, CommandNotFound
+from discord.ext.commands import Bot as BotBase, CommandNotFound, Context, BadArgument
+from discord.ext.commands.errors import MissingRequiredArgument, CommandInvokeError, MemberNotFound
+from discord.errors import Forbidden, HTTPException
 
 from ..db import db
 
-PREFIX = ':'
+PREFIX = '-'
 OWNER_IDS = [751832971664818287]
 COGS = [path.split("\\")[-1][:-3] for path in glob("D:/Nilesh/WEBD/PYTHON/discord.py-bot/lib/cogs/*.py")]
+IGNORE_EXCEPTIONS = [MissingRequiredArgument, CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
 
 class Ready(object):
 	def __init__(self):
@@ -53,10 +56,22 @@ class Bot(BotBase):
         print("Bot Running...")
         super().run(self.TOKEN, reconnect=True)
 
+    async def process_commands(self, message):
+        ctx = await self.get_context(message, cls=Context)
+        if ctx.command is not None and ctx.guild is not None:
+            if self.ready:
+                await self.invoke(ctx)
+            else:
+                await ctx.send("I'm not ready.")
+
+    async def rules_reminder(self):
+        await self.stdout.send("Remenber to adhere to the rules.")
+
     async def on_connect(self):
         print("Bot Connected.")
 
     async def on_disconnect(self):
+        # await self.stdout.send("Adios, bitches!")
         print("Bot Disconnected.")
 
     async def on_error(self, err, *args, **kwargs):
@@ -67,12 +82,14 @@ class Bot(BotBase):
         raise
 
     async def on_command_error(self, ctx, exc):
-        if isinstance(exc, CommandNotFound):
+        if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
             pass
-        elif hasattr(exc, 'original'):
-            raise exc.original
+        elif isinstance(exc.original, Forbidden):
+            await ctx.send("I'm not permitted to do that. So I won't")
+        elif isinstance(exc.original, HTTPException):
+            await ctx.send("I guess, something's not allowing me to send a response. HTTP maybe")
         else:
-            raise exc
+            raise exc.original
 
     async def on_ready(self):
         if not self.ready:
@@ -102,6 +119,7 @@ class Bot(BotBase):
             print("Bot Reconnected.")
 
     async def on_message(self, message):
-        pass
+        if not message.author.bot:
+            await self.process_commands(message)
 
 bot = Bot()
