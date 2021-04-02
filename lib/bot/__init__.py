@@ -12,7 +12,7 @@ from ..db import db
 PREFIX = '-'
 OWNER_IDS = [751832971664818287]
 COGS = [path.split("\\")[-1][:-3] for path in glob("D:/Nilesh/WEBD/PYTHON/discord.py-bot/lib/cogs/*.py")]
-IGNORE_EXCEPTIONS = [MissingRequiredArgument, CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
+IGNORE_EXCEPTIONS = [CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
 
 class Ready(object):
 	def __init__(self):
@@ -84,12 +84,14 @@ class Bot(BotBase):
     async def on_command_error(self, ctx, exc):
         if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
             pass
+        elif isinstance(exc, MissingRequiredArgument):
+            await ctx.send("I believe you have something more to say!")
         elif isinstance(exc.original, Forbidden):
             await ctx.send("I'm not permitted to do that. So I won't")
         elif isinstance(exc.original, HTTPException):
             await ctx.send("I guess, something's not allowing me to send a response. HTTP maybe")
         else:
-            raise exc.original
+            raise exc
 
     async def on_ready(self):
         if not self.ready:
