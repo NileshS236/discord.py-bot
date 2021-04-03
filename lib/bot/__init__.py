@@ -3,7 +3,13 @@ from datetime import datetime
 from glob import glob
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import Intents, Embed, File
-from discord.ext.commands import Bot as BotBase, CommandNotFound, Context, BadArgument
+from discord.ext.commands import (
+    Bot as BotBase,
+    CommandNotFound,
+    Context,
+    BadArgument,
+    when_mentioned_or,
+)
 from discord.ext.commands.errors import (
     MissingRequiredArgument,
     CommandInvokeError,
@@ -23,6 +29,11 @@ COGS = [
 IGNORE_EXCEPTIONS = [CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
 
 
+def get_prefix(bot, message):
+    prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    return when_mentioned_or(prefix)(bot, message)
+
+
 class Ready(object):
     def __init__(self):
         for cog in COGS:
@@ -38,7 +49,6 @@ class Ready(object):
 
 class Bot(BotBase):
     def __init__(self):
-        self.PREFIX = PREFIX
         self.ready = False
         self.cogs_ready = Ready()
         self.guild = None
@@ -47,7 +57,7 @@ class Bot(BotBase):
         db.autosave(self.scheduler)
 
         super().__init__(
-            command_prefix=PREFIX, owner_ids=OWNER_IDS, intents=Intents.all()
+            command_prefix=get_prefix, owner_ids=OWNER_IDS, intents=Intents.all()
         )
 
     def setup(self):
@@ -122,7 +132,7 @@ class Bot(BotBase):
     async def on_ready(self):
         if not self.ready:
             self.guild = self.get_guild(824242087683817512)
-            self.stdout = self.get_channel(824242087683817515)
+            self.stdout = self.get_channel(827868996413423626)
             self.scheduler.start()
 
             # embed = Embed(title="Now Online!", description="I'm on.", timestamp=datetime.utcnow(), colour=0xFF00FF)
