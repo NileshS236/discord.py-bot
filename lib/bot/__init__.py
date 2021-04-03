@@ -4,27 +4,37 @@ from glob import glob
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import Intents, Embed, File
 from discord.ext.commands import Bot as BotBase, CommandNotFound, Context, BadArgument
-from discord.ext.commands.errors import MissingRequiredArgument, CommandInvokeError, MemberNotFound, CommandOnCooldown
+from discord.ext.commands.errors import (
+    MissingRequiredArgument,
+    CommandInvokeError,
+    MemberNotFound,
+    CommandOnCooldown,
+)
 from discord.errors import Forbidden, HTTPException
 
 from ..db import db
 
-PREFIX = '-'
+PREFIX = "-"
 OWNER_IDS = [751832971664818287]
-COGS = [path.split("\\")[-1][:-3] for path in glob("D:/Nilesh/WEBD/PYTHON/discord.py-bot/lib/cogs/*.py")]
+COGS = [
+    path.split("\\")[-1][:-3]
+    for path in glob("D:/Nilesh/WEBD/PYTHON/discord.py-bot/lib/cogs/*.py")
+]
 IGNORE_EXCEPTIONS = [CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
 
+
 class Ready(object):
-	def __init__(self):
-		for cog in COGS:
-			setattr(self, cog, False)
+    def __init__(self):
+        for cog in COGS:
+            setattr(self, cog, False)
 
-	def ready_up(self, cog):
-		setattr(self, cog, True)
-		print(f" {cog} cog ready")
+    def ready_up(self, cog):
+        setattr(self, cog, True)
+        print(f" {cog} cog ready")
 
-	def all_ready(self):
-		return all([getattr(self, cog) for cog in COGS])
+    def all_ready(self):
+        return all([getattr(self, cog) for cog in COGS])
+
 
 class Bot(BotBase):
     def __init__(self):
@@ -36,7 +46,9 @@ class Bot(BotBase):
 
         db.autosave(self.scheduler)
 
-        super().__init__(command_prefix=PREFIX, owner_ids=OWNER_IDS, intents=Intents.all())
+        super().__init__(
+            command_prefix=PREFIX, owner_ids=OWNER_IDS, intents=Intents.all()
+        )
 
     def setup(self):
         for cog in COGS:
@@ -50,7 +62,7 @@ class Bot(BotBase):
         print("running setup...")
         self.setup()
 
-        with open("./lib/bot/token.0", 'r', encoding='utf-8') as tf:
+        with open("./lib/bot/token.0", "r", encoding="utf-8") as tf:
             self.TOKEN = tf.read()
 
         print("Bot Running...")
@@ -77,7 +89,7 @@ class Bot(BotBase):
     async def on_error(self, err, *args, **kwargs):
         if err == "on_command_error":
             await args[0].send("Something went wrong.")
-            
+
         await self.stdout.send("An error occured.")
         raise
 
@@ -85,17 +97,23 @@ class Bot(BotBase):
         if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
             pass
         elif isinstance(exc, CommandOnCooldown):
-            if str(exc.cooldown.type).split('.')[-1] == 'user':
-                await ctx.send(f"Woah! Spamming isn't cool. Wait {exc.retry_after:,.0f}s before using that command again")
-            elif str(exc.cooldown.type).split('.')[-1] == 'guild':
-                await ctx.send(f"Cooldown there! You can use this command again in {exc.retry_after:,.0f}s.")
+            if str(exc.cooldown.type).split(".")[-1] == "user":
+                await ctx.send(
+                    f"Woah! Spamming isn't cool. Wait {exc.retry_after:,.0f}s before using that command again"
+                )
+            elif str(exc.cooldown.type).split(".")[-1] == "guild":
+                await ctx.send(
+                    f"Cooldown there! You can use this command again in {exc.retry_after:,.0f}s."
+                )
         elif isinstance(exc, MissingRequiredArgument):
             await ctx.send("I believe you have something more to say!")
-        elif hasattr(exc, 'original'):
+        elif hasattr(exc, "original"):
             if isinstance(exc.original, Forbidden):
                 await ctx.send("I'm not permitted to do that. So I won't.")
             elif isinstance(exc.original, HTTPException):
-                await ctx.send("I guess, something's not allowing me to send a response. HTTP maybe")
+                await ctx.send(
+                    "I guess, something's not allowing me to send a response. HTTP maybe"
+                )
             else:
                 raise exc.original
         else:
@@ -107,7 +125,6 @@ class Bot(BotBase):
             self.stdout = self.get_channel(824242087683817515)
             self.scheduler.start()
 
-
             # embed = Embed(title="Now Online!", description="I'm on.", timestamp=datetime.utcnow(), colour=0xFF00FF)
             # embed.add_field(name="Name", value="Value",inline=True)
             # embed.set_footer(text="This is a footer!")
@@ -118,7 +135,7 @@ class Bot(BotBase):
             # await channel.send(embed=embed)
             # await channel.send(file=File("./data/images/394230.jpg"))
             while not self.cogs_ready.all_ready():
-                await sleep(0.5)    
+                await sleep(0.5)
 
             await self.stdout.send("Now Online!")
 
@@ -131,5 +148,6 @@ class Bot(BotBase):
     async def on_message(self, message):
         if not message.author.bot:
             await self.process_commands(message)
+
 
 bot = Bot()
