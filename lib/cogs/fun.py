@@ -13,11 +13,11 @@ from discord.ext.commands.errors import (
 )
 
 reddit = praw.Reddit(
-    client_id="i10kksuKFBQjQg",
-    client_secret="CD1BPDYGJ15-Kc1SqcDuEOzq1Nv-Wg",
-    username="AdKey6705",
-    password="devnilu2306",
-    user_agent="boNo_101",
+    client_id="",
+    client_secret="",
+    username="",
+    password="",
+    user_agent="",
 )
 
 
