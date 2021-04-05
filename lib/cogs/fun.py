@@ -459,29 +459,86 @@ class Fun(Cog):
         These days it's difficut to parse the forte and get the lyrics. Here use this command.
         """
         URL = f"https://some-random-api.ml/lyrics?title={song_info}"
+        embeds = []
         async with ctx.channel.typing():
             async with request("GET", URL) as response:
                 if response.status == 200:
                     song_data = await response.json()
-                    embed = Embed(
-                        title=song_data["title"],
-                        url=f"{song_data['links']['genius']}",
-                        description=f"```{song_data['lyrics'][:2042]}```",
-                        color=choice(
-                            (0xFF00FF, 0xFF0000, 0x0000FF, 0x00FF00, 0xFFFF00, 0x00FFFF)
-                        ),
-                    )
-                    embed.set_author(name=song_data["author"])
-                    embed.set_footer(
-                        text="If that's not the song, try mentioning a singer or ft. of the song in the command."
-                    )
-                    if song_data["thumbnail"]["genius"]:
-                        embed.set_thumbnail(url=song_data["thumbnail"]["genius"])
+                    song_len = len(song_data["lyrics"])
+                    n = song_len
+                    len_arr = []
+                    c = 0
+                    while n > 0:
+                        c += 1
+                        len_arr.append(n)
+                        n -= 2042
+                    num_list = [x for x in range(c)]
+                    result = zip(num_list, len_arr)
+                    sorted_list = sorted(set(result))
+
+                    for part in sorted_list[::-1]:
+                        if part[0] == (len(sorted_list) - 1):
+                            embed = Embed(
+                                title=song_data["title"],
+                                url=f"{song_data['links']['genius']}",
+                                description=f"```{song_data['lyrics'][:part[1]]}```",
+                                color=choice(
+                                    (
+                                        0xFF00FF,
+                                        0xFF0000,
+                                        0x0000FF,
+                                        0x00FF00,
+                                        0xFFFF00,
+                                        0x00FFFF,
+                                    )
+                                ),
+                            )
+                            embed.set_author(name=song_data["author"])
+                            if song_data["thumbnail"]["genius"]:
+                                embed.set_thumbnail(
+                                    url=song_data["thumbnail"]["genius"]
+                                )
+                            embeds.append(embed)
+                        if not part[0] == 0:
+                            embed = Embed(
+                                description=f"```{song_data['lyrics'][part[1]:part[1]+2042]}```",
+                                color=choice(
+                                    (
+                                        0xFF00FF,
+                                        0xFF0000,
+                                        0x0000FF,
+                                        0x00FF00,
+                                        0xFFFF00,
+                                        0x00FFFF,
+                                    )
+                                ),
+                            )
+                            embeds.append(embed)
+                        if part[0] == 0:
+                            embed = Embed(
+                                color=choice(
+                                    (
+                                        0xFF00FF,
+                                        0xFF0000,
+                                        0x0000FF,
+                                        0x00FF00,
+                                        0xFFFF00,
+                                        0x00FFFF,
+                                    )
+                                ),
+                            )
+                            embed.set_footer(
+                                text="If that's not the song, try mentioning a singer or ft. of the song in the command."
+                            )
+                            embeds.append(embed)
                 else:
                     embed = Embed(
                         description="Seems like I don't have any result for that song."
                     )
-        await ctx.send(embed=embed)
+                    embeds.append(embed)
+        # print(embeds)
+        for emb in embeds:
+            await ctx.send(embed=emb)
 
     @Cog.listener()
     async def on_ready(self):

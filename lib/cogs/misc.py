@@ -3,8 +3,6 @@ from discord.ext.commands import Cog, Greedy
 from discord.ext.commands import CheckFailure
 from discord.ext.commands import command, has_permissions
 
-from discord.utils import find
-
 from ..db import db
 
 
