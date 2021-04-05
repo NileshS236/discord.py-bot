@@ -1,6 +1,7 @@
 from random import randint, choice
 from typing import Optional
 from aiohttp import request
+from dotenv import dotenv_values
 
 import praw, random
 
@@ -12,12 +13,14 @@ from discord.ext.commands.errors import (
     MemberNotFound,
 )
 
+config = dotenv_values(".env")
+
 reddit = praw.Reddit(
-    client_id="",
-    client_secret="",
-    username="",
-    password="",
-    user_agent="",
+    client_id=config["CLIENT_ID"],
+    client_secret=config["CLIENT_SECRET"],
+    username=config["USERNAME"],
+    password=config["PASSWORD"],
+    user_agent=config["USER_AGENT"],
 )
 
 
