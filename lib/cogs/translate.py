@@ -29,11 +29,11 @@ class Translate(Cog):
                     embed = Embed(
                         description=t.origin
                         + "("
-                        + t.src
+                        + LANGUAGES[t.src]
                         + ")\n->\n"
                         + t.text
                         + " ("
-                        + t.dest
+                        + LANGUAGES[t.dest]
                         + ")",
                         colour=ctx.author.colour,
                     )
@@ -41,7 +41,7 @@ class Translate(Cog):
                     break
             else:
                 embed = Embed(
-                    title=f"Language code '{LANGUAGES[temp_lang]}' you chose does'nt exist.",
+                    title=f"Language code '{temp_lang}' you chose does'nt exist.",
                     description="```"
                     + "\n".join(f"{l} - {LANGUAGES[l]}" for l in LANGUAGES)
                     + "```",
