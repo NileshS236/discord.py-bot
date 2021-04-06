@@ -9,45 +9,99 @@ class Translate(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="translate", aliases=["-t"])
-    async def translate_sentence(
-        self, ctx, *, sentence: str, lang: Optional[str] = "en"
-    ):
-        await ctx.message.delete()
-        if "_$" in sentence:
-            sentence_list = sentence.split("_$")
-            sentence = sentence_list[0]
-            temp_lang = sentence_list[1]
-            # print(lang)
-            for l in LANGUAGES:
-                if temp_lang == l:
-                    lang = temp_lang
-                    # print(lang)
-                    translator = Translator()
-                    t = translator.translate(sentence, dest=lang)
-                    # print(t.text)
-                    embed = Embed(
-                        description=t.origin
-                        + "("
-                        + LANGUAGES[t.src]
-                        + ")\n->\n"
-                        + t.text
-                        + " ("
-                        + LANGUAGES[t.dest]
-                        + ")",
-                        colour=ctx.author.colour,
-                    )
-                    await ctx.send(embed=embed)
-                    break
+    def is_code_vaid(self, tmp):
+        for l in LANGUAGES:
+            if tmp == l:
+                return tmp
+                break
+        else:
+            return False
+
+    def get_dest(self, sentence):
+        sentence_list = sentence.split("--dest")
+        temp_dest = sentence_list[1].split()[0]
+        return self.is_code_vaid(temp_dest)
+
+    def get_src(self, sentence):
+        sentence_list = sentence.split("--src")
+        temp_dest = sentence_list[1].split()[0]
+        return self.is_code_vaid(temp_dest)
+
+    def get_clean_sentence(self, sentence):
+        sen_arr = sentence.split()
+
+        if "--dest" in sen_arr:
+            i = sen_arr.index("--dest")
+            sen_arr.remove("--dest")
+            sen_arr.remove(sen_arr[i])
+        if "--src" in sen_arr:
+            i = sen_arr.index("--src")
+            sen_arr.remove("--src")
+            sen_arr.remove(sen_arr[i])
+        if "--hide" in sen_arr:
+            i = sen_arr.index("--hide")
+            sen_arr.remove("--hide")
+        return " ".join(sen_arr)
+
+    @command(
+        name="translate",
+        aliases=["-t"],
+        description="It translates! Flags you wanna try -\n`--src`  `--dest`  `--hide`",
+    )
+    async def translate_sentence(self, ctx, *, sentence: str):
+        try:
+            dest = ""
+            src = ""
+            output = ""
+            t = None
+            og_sentence = self.get_clean_sentence(sentence)
+            print(og_sentence)
+
+            if "--dest" in sentence:
+                dest = self.get_dest(sentence)
+
+            if "--src" in sentence:
+                src = self.get_src(sentence)
+
+            translator = Translator()
+            if len(src):
+                t = translator.translate(
+                    og_sentence,
+                    src=src,
+                    dest=f"{'en' if not len(dest) else dest}",
+                )
             else:
-                embed = Embed(
-                    title=f"Language code '{temp_lang}' you chose does'nt exist.",
-                    description="```"
-                    + "\n".join(f"{l} - {LANGUAGES[l]}" for l in LANGUAGES)
-                    + "```",
+                t = translator.translate(
+                    og_sentence,
+                    dest=f"{'en' if not len(dest) else dest}",
+                )
+
+            if "--hide" in sentence:
+                output = t.text
+            else:
+                output = (
+                    t.origin
+                    + "("
+                    + LANGUAGES[t.src]
+                    + ")\n->\n"
+                    + t.text
+                    + " ("
+                    + LANGUAGES[t.dest]
+                    + ")"
+                )
+            await ctx.message.delete()
+            embed = Embed(
+                description=output,
+                colour=ctx.author.colour,
+            )
+            await ctx.send(embed=embed)
+        except:
+            await ctx.send(
+                embed=Embed(
+                    description="Check your command once again.",
                     colour=ctx.author.colour,
                 )
-                await ctx.send(embed=embed)
+            )
 
     @Cog.listener()
     async def on_ready(self):
