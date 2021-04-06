@@ -2,6 +2,8 @@ from asyncio import sleep
 from datetime import datetime
 from glob import glob
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from dotenv import dotenv_values
+
 from discord import Intents, Embed, File
 from discord.ext.commands import (
     Bot as BotBase,
@@ -20,12 +22,11 @@ from discord.errors import Forbidden, HTTPException
 
 from ..db import db
 
+config = dotenv_values(".env")
+
 PREFIX = "-"
 OWNER_IDS = [751832971664818287]
-COGS = [
-    path.split("\\")[-1][:-3]
-    for path in glob("D:/Nilesh/WEBD/PYTHON/discord.py-bot/lib/cogs/*.py")
-]
+COGS = [path.split("\\")[-1][:-3] for path in glob(config["COGS_PATH"])]
 IGNORE_EXCEPTIONS = [CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
 
 
