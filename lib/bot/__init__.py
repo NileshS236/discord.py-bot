@@ -10,6 +10,7 @@ from discord.ext.commands import (
     CommandNotFound,
     Context,
     BadArgument,
+    DisabledCommand,
     when_mentioned_or,
 )
 from discord.ext.commands.errors import (
@@ -27,7 +28,13 @@ config = dotenv_values(".env")
 PREFIX = "-"
 OWNER_IDS = [751832971664818287]
 COGS = [path.split("\\")[-1][:-3] for path in glob(config["COGS_PATH"])]
-IGNORE_EXCEPTIONS = [CommandInvokeError, MemberNotFound, CommandNotFound, BadArgument]
+IGNORE_EXCEPTIONS = [
+    CommandInvokeError,
+    MemberNotFound,
+    CommandNotFound,
+    BadArgument,
+    DisabledCommand,
+]
 
 
 def get_prefix(bot, message):
@@ -105,30 +112,30 @@ class Bot(BotBase):
         raise
 
     async def on_command_error(self, ctx, exc):
-        # if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
-        #     pass
-        # elif isinstance(exc, CommandOnCooldown):
-        #     if str(exc.cooldown.type).split(".")[-1] == "user":
-        #         await ctx.send(
-        #             f"Woah! Spamming isn't cool. Wait {exc.retry_after:,.0f}s before using that command again"
-        #         )
-        #     elif str(exc.cooldown.type).split(".")[-1] == "guild":
-        #         await ctx.send(
-        #             f"Cooldown there! You can use this command again in {exc.retry_after:,.0f}s."
-        #         )
-        # elif isinstance(exc, MissingRequiredArgument):
-        #     await ctx.send("I believe you have something more to say!")
-        # elif hasattr(exc, "original"):
-        #     if isinstance(exc.original, Forbidden):
-        #         await ctx.send("I'm not permitted to do that. So I won't.")
-        #     elif isinstance(exc.original, HTTPException):
-        #         await ctx.send(
-        #             "I guess, something's not allowing me to send a response. HTTP maybe"
-        #         )
-        #     else:
-        #         raise exc.original
-        # else:
-        raise exc
+        if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
+            pass
+        elif isinstance(exc, CommandOnCooldown):
+            if str(exc.cooldown.type).split(".")[-1] == "user":
+                await ctx.send(
+                    f"Woah! Spamming isn't cool. Wait {exc.retry_after:,.0f}s before using that command again"
+                )
+            elif str(exc.cooldown.type).split(".")[-1] == "guild":
+                await ctx.send(
+                    f"Cooldown there! You can use this command again in {exc.retry_after:,.0f}s."
+                )
+        elif isinstance(exc, MissingRequiredArgument):
+            await ctx.send("I believe you have something more to say!")
+        elif hasattr(exc, "original"):
+            if isinstance(exc.original, Forbidden):
+                await ctx.send("I'm not permitted to do that. So I won't.")
+            elif isinstance(exc.original, HTTPException):
+                await ctx.send(
+                    "I guess, something's not allowing me to send a response. HTTP maybe"
+                )
+            else:
+                raise exc.original
+        else:
+            raise exc
 
     async def on_ready(self):
         if not self.ready:
@@ -157,8 +164,27 @@ class Bot(BotBase):
             print("Bot Reconnected.")
 
     async def on_message(self, message):
-        if not message.author.bot:
-            await self.process_commands(message)
+        # Ignore messages sent by yourself
+        if message.author.bot:
+            return
+
+        # A way to blacklist users from the bot by not processing commands
+        # if the author is in the blacklisted_users list
+        # if message.author.id in bot.blacklisted_users:
+        #     return
+
+        # Whenever the bot is tagged, respond with its prefix
+        if message.content.startswith(f"<@!{bot.user.id}>") and len(
+            message.content
+        ) == len(f"<@!{bot.user.id}>"):
+            data = await bot.config.get_by_id(message.guild.id)
+            if not data or "prefix" not in data:
+                prefix = get_prefix
+            else:
+                prefix = data["prefix"]
+            await message.channel.send(f"My prefix here is `{prefix}`", delete_after=15)
+
+        await bot.process_commands(message)
 
 
 bot = Bot()

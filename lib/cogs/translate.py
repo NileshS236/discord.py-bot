@@ -55,7 +55,7 @@ class Translate(Cog):
             output = ""
             t = None
             og_sentence = self.get_clean_sentence(sentence)
-            print(og_sentence)
+            # print(og_sentence)
 
             if "--dest" in sentence:
                 dest = self.get_dest(sentence)

@@ -2,7 +2,6 @@ from random import randint, choice
 from typing import Optional
 from aiohttp import request
 from dotenv import dotenv_values
-
 import praw, random
 
 from discord import Member, Embed

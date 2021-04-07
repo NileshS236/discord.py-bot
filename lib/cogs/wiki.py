@@ -124,7 +124,7 @@ class Wiki(Cog):
                     content += f"{para}..."
                     break
 
-            print(len(content))
+            # print(len(content))
             embed2 = Embed(
                 title="Brief",
                 description=f"```{content}``` [More]({url.replace(' ', '_')})",
