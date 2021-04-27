@@ -119,7 +119,11 @@ class BlackJack(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="blackjack", aliases=["bj"])
+    @command(
+        name="blackjack",
+        aliases=["bj"],
+        description="Play some blackjack. (Don't get addicted though!)",
+    )
     async def play_blackjack(self, ctx):
         global playing
         # This is not the ideal way of doing it. But deal with it.

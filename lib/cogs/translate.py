@@ -9,8 +9,9 @@ class Translate(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def is_code_vaid(self, tmp):
+    def is_code_valid(self, tmp):
         for l in LANGUAGES:
+            print(l)
             if tmp == l:
                 return tmp
                 break
@@ -20,14 +21,15 @@ class Translate(Cog):
     def get_dest(self, sentence):
         sentence_list = sentence.split("--dest")
         temp_dest = sentence_list[1].split()[0]
-        return self.is_code_vaid(temp_dest)
+        return self.is_code_valid(temp_dest)
 
     def get_src(self, sentence):
         sentence_list = sentence.split("--src")
         temp_dest = sentence_list[1].split()[0]
-        return self.is_code_vaid(temp_dest)
+        return self.is_code_valid(temp_dest)
 
     def get_clean_sentence(self, sentence):
+        sen_arr = []
         sen_arr = sentence.split()
 
         if "--dest" in sen_arr:
@@ -45,7 +47,7 @@ class Translate(Cog):
 
     @command(
         name="translate",
-        aliases=["-t"],
+        aliases=["$t"],
         description="It translates! Flags you wanna try -\n`--src`  `--dest`  `--hide`",
     )
     async def translate_sentence(self, ctx, *, sentence: str):
@@ -64,16 +66,16 @@ class Translate(Cog):
                 src = self.get_src(sentence)
 
             translator = Translator()
-            if len(src):
+            if src:
                 t = translator.translate(
                     og_sentence,
                     src=src,
-                    dest=f"{'en' if not len(dest) else dest}",
+                    dest=f"{'en' if not dest else dest}",
                 )
             else:
                 t = translator.translate(
                     og_sentence,
-                    dest=f"{'en' if not len(dest) else dest}",
+                    dest=f"{'en' if not dest else dest}",
                 )
 
             if "--hide" in sentence:
