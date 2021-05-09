@@ -112,30 +112,30 @@ class Bot(BotBase):
         raise
 
     async def on_command_error(self, ctx, exc):
-        if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
-            pass
-        elif isinstance(exc, CommandOnCooldown):
-            if str(exc.cooldown.type).split(".")[-1] == "user":
-                await ctx.send(
-                    f"Woah! Spamming isn't cool. Wait {exc.retry_after:,.0f}s before using that command again"
-                )
-            elif str(exc.cooldown.type).split(".")[-1] == "guild":
-                await ctx.send(
-                    f"Cooldown there! You can use this command again in {exc.retry_after:,.0f}s."
-                )
-        elif isinstance(exc, MissingRequiredArgument):
-            await ctx.send("I believe you have something more to say!")
-        elif hasattr(exc, "original"):
-            if isinstance(exc.original, Forbidden):
-                await ctx.send("I'm not permitted to do that. So I won't.")
-            elif isinstance(exc.original, HTTPException):
-                await ctx.send(
-                    "I guess, something's not allowing me to send a response. HTTP maybe"
-                )
-            else:
-                raise exc.original
-        else:
-            raise exc
+        # if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
+        #     pass
+        # elif isinstance(exc, CommandOnCooldown):
+        #     if str(exc.cooldown.type).split(".")[-1] == "user":
+        #         await ctx.send(
+        #             f"Woah! Spamming isn't cool. Wait {exc.retry_after:,.0f}s before using that command again"
+        #         )
+        #     elif str(exc.cooldown.type).split(".")[-1] == "guild":
+        #         await ctx.send(
+        #             f"Cooldown there! You can use this command again in {exc.retry_after:,.0f}s."
+        #         )
+        # elif isinstance(exc, MissingRequiredArgument):
+        #     await ctx.send("I believe you have something more to say!")
+        # elif hasattr(exc, "original"):
+        #     if isinstance(exc.original, Forbidden):
+        #         await ctx.send("I'm not permitted to do that. So I won't.")
+        #     elif isinstance(exc.original, HTTPException):
+        #         await ctx.send(
+        #             "I guess, something's not allowing me to send a response. HTTP maybe"
+        #         )
+        #     else:
+        #         raise exc.original
+        # else:
+        raise exc
 
     async def on_ready(self):
         if not self.ready:

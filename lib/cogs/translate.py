@@ -11,12 +11,20 @@ class Translate(Cog):
 
     def is_code_valid(self, tmp):
         for l in LANGUAGES:
-            print(l)
             if tmp == l:
                 return tmp
                 break
         else:
             return False
+
+    def get_description():
+        return (
+            "It translates! Flags you wanna try -\n`--src`  `--dest`  `--hide`\n\nLANGUAGE CODES:\n```"
+            + "\n".join(
+                f"{LANGUAGES[l]} ==>> {l}" for i, l in enumerate(LANGUAGES) if i < 2000
+            )
+            + "```"
+        )
 
     def get_dest(self, sentence):
         sentence_list = sentence.split("--dest")
@@ -48,7 +56,7 @@ class Translate(Cog):
     @command(
         name="translate",
         aliases=["$t"],
-        description="It translates! Flags you wanna try -\n`--src`  `--dest`  `--hide`",
+        description=get_description(),
     )
     async def translate_sentence(self, ctx, *, sentence: str):
         try:
