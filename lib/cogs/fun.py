@@ -7,7 +7,6 @@ import praw, random
 from discord import Member, Embed
 from discord.ext.commands import Cog, command, BadArgument, BucketType, cooldown
 from discord.ext.commands.errors import (
-    MissingRequiredArgument,
     CommandInvokeError,
     MemberNotFound,
 )
@@ -176,7 +175,7 @@ class Fun(Cog):
     @cooldown(1, 5, BucketType.user)
     async def wink(self, ctx):
         """
-        Don't take that as a wrong sign. Those are just characters winking. (Not even at you)
+        Do not take a wrong sign. Those are just characters winking. (Not even at you)
         """
         URL = "https://some-random-api.ml/animu/wink"
         async with request("GET", URL) as response:
@@ -232,11 +231,11 @@ class Fun(Cog):
             else:
                 await ctx.send(f"Seems like a bad API.")
 
-    @command(name="face-palm")
+    @command(name="facepalm", aliases=["fp"])
     @cooldown(1, 5, BucketType.user)
     async def face_palm(self, ctx):
         """
-        That "pissed" palm on face, not caressing.
+        That's "pissed" palm on face, not caressing.
         """
         URL = "https://some-random-api.ml/animu/face-palm"
         async with request("GET", URL) as response:
@@ -278,7 +277,7 @@ class Fun(Cog):
     @cooldown(1, 5, BucketType.user)
     async def gay(self, ctx, member: Optional[Member]):
         """
-        Belive me, not the command. It's doesn't do what you think it does. Or try it yourself. (Do mention someone)
+        Believe me, not the command. It's doesn't do what you think it does. Or try it yourself. (Do mention someone)
         """
         URL = (
             f"https://some-random-api.ml/canvas/gay?avatar={member.avatar_url_as(format='png')}"
@@ -458,7 +457,7 @@ class Fun(Cog):
     @cooldown(1, 15, BucketType.guild)
     async def give_lyrics(self, ctx, *, song_info: str):
         """
-        These days it's difficut to parse the forte and get the lyrics. Here use this command.
+        These days it's difficut to parse the forte and get the lyrics. Here, use this command.
         """
         URL = f"https://some-random-api.ml/lyrics?title={song_info}"
         embeds = []

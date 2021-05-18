@@ -17,9 +17,9 @@ class Translate(Cog):
         else:
             return False
 
-    def get_description():
+    def get_description(self):
         return (
-            "It translates! Flags you wanna try -\n`--src`  `--dest`  `--hide`\n\nLANGUAGE CODES:\n```"
+            "It translates, DUH! Flags you wanna try -\n```--s <source lang> --d <destination lang>\n--h (hide source lang)```\n\nLANGUAGE CODES:\n```"
             + "\n".join(
                 f"{LANGUAGES[l]} ==>> {l}" for i, l in enumerate(LANGUAGES) if i < 2000
             )
@@ -27,12 +27,12 @@ class Translate(Cog):
         )
 
     def get_dest(self, sentence):
-        sentence_list = sentence.split("--dest")
+        sentence_list = sentence.split("--d")
         temp_dest = sentence_list[1].split()[0]
         return self.is_code_valid(temp_dest)
 
     def get_src(self, sentence):
-        sentence_list = sentence.split("--src")
+        sentence_list = sentence.split("--s")
         temp_dest = sentence_list[1].split()[0]
         return self.is_code_valid(temp_dest)
 
@@ -40,23 +40,23 @@ class Translate(Cog):
         sen_arr = []
         sen_arr = sentence.split()
 
-        if "--dest" in sen_arr:
-            i = sen_arr.index("--dest")
-            sen_arr.remove("--dest")
+        if "--d" in sen_arr:
+            i = sen_arr.index("--d")
+            sen_arr.remove("--d")
             sen_arr.remove(sen_arr[i])
-        if "--src" in sen_arr:
-            i = sen_arr.index("--src")
-            sen_arr.remove("--src")
+        if "--s" in sen_arr:
+            i = sen_arr.index("--s")
+            sen_arr.remove("--s")
             sen_arr.remove(sen_arr[i])
-        if "--hide" in sen_arr:
-            i = sen_arr.index("--hide")
-            sen_arr.remove("--hide")
+        if "--h" in sen_arr:
+            i = sen_arr.index("--h")
+            sen_arr.remove("--h")
         return " ".join(sen_arr)
 
     @command(
         name="translate",
-        aliases=["$t"],
-        description=get_description(),
+        aliases=["t"],
+        description="It translates, DUH! Flags you might wanna try -\n--s <source lang>\n--d <destination lang>\n--h (hide source lang)",
     )
     async def translate_sentence(self, ctx, *, sentence: str):
         try:
@@ -67,10 +67,10 @@ class Translate(Cog):
             og_sentence = self.get_clean_sentence(sentence)
             # print(og_sentence)
 
-            if "--dest" in sentence:
+            if "--d" in sentence:
                 dest = self.get_dest(sentence)
 
-            if "--src" in sentence:
+            if "--s" in sentence:
                 src = self.get_src(sentence)
 
             translator = Translator()
@@ -86,7 +86,7 @@ class Translate(Cog):
                     dest=f"{'en' if not dest else dest}",
                 )
 
-            if "--hide" in sentence:
+            if "--h" in sentence:
                 output = t.text
             else:
                 output = (
@@ -112,6 +112,15 @@ class Translate(Cog):
                     colour=ctx.author.colour,
                 )
             )
+
+    @command(name="langcodes", aliases=["codes", "lc"], hidden=True)
+    async def langcodes(self, ctx):
+        await ctx.send(
+            embed=Embed(
+                description=self.get_description(),
+                colour=ctx.author.colour,
+            )
+        )
 
     @Cog.listener()
     async def on_ready(self):
