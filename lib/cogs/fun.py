@@ -39,7 +39,7 @@ class Fun(Cog):
     @cooldown(1, 10, BucketType.user)
     async def roll_dice(self, ctx, die_string: int):
         """
-        Give me number of dice and I might give you the SUM of you luck.
+        Give me number of dice and I might give you the SUM of your luck.
         """
         dice = die_string
         if dice <= 25:
