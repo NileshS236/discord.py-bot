@@ -74,7 +74,7 @@ class Fun(Cog):
     @command(name="toss", aliases=["flip"])
     async def toss_coin(self, ctx):
         """
-        If command name is not explaining you enough, it tosses 'the coin'. Sometimes I lose it though.
+        If command name is not explaining you enough, it tosses 'the coin'. Sometime coin gets lost though.
         """
         await ctx.send("It's " + choice(("Heads.", "Tails.", "uh...\ncoin's lost.")))
 
