@@ -67,9 +67,7 @@ class Fun(Cog):
     @slap_member.error
     async def slap_member_error(self, ctx, exc):
         if isinstance(exc, CommandInvokeError):
-            await ctx.send(
-                f"{ctx.author.mention} slapped {member.mention if member else ctx.author.mention} {reason}"
-            )
+            pass
         elif isinstance(exc, MemberNotFound):
             await ctx.send(f"Now that member is hard to find.")
 
