@@ -133,7 +133,7 @@ class Wiki(Cog):
             embeds.append(embed2)
 
             embed2.set_footer(
-                text="If that not what you are looking for try giving being more accurate query."
+                text="If that not what you are looking for try being more accurate with query."
             )
 
             # await ctx.send

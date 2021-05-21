@@ -241,7 +241,9 @@ class BlackJack(Cog):
                     return playing
                 else:
                     await ctx.send(
-                        embed=Embed(description="Valid input FYI. Enter again (h/s)")
+                        embed=Embed(
+                            description="FYI, valid input only. Enter again (h/s)"
+                        )
                     )
                     continue
                 break
