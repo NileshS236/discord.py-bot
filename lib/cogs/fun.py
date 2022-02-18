@@ -355,7 +355,7 @@ class Fun(Cog):
         except Exception as e:
             print(e)
 
-    @command(name="nsfw", hidden=True)
+    @command(name="nsfw", aliases=["rule34"], hidden=True)
     @cooldown(1, 10, BucketType.guild)
     async def nsfw(self, ctx):
         """
@@ -374,7 +374,7 @@ class Fun(Cog):
             )
         else:
             async with ctx.channel.typing():
-                memes_submissions = reddit.subreddit("nsfw")
+                memes_submissions = reddit.subreddit("rule34").hot()
                 post_to_pick = random.randint(1, 100)
                 for i in range(0, post_to_pick):
                     submission = memes_submissions.__next__()
